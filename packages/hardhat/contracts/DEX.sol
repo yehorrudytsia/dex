@@ -32,4 +32,20 @@ contract DEX {
     uint256 denominator = inputReserve * 1000 + inputAmount;
     return numerator / denominator;
   }
+
+  function ethToToken() public payable returns (uint256) {
+    uint256 tokenReserve = token.balanceOf(address(this));
+    uint tokensPurchased = price(msg.value, address(this).balance - msg.value, tokenReserve);
+    require(token.transfer(msg.sender, tokensPurchased));
+    return tokensPurchased;
+  }
+
+  function tokenToEth(uint256 tokens) public returns (uint256) {
+    uint256 tokenReserve = token.balanceOf(address(this));
+    uint256 ethPurchased = price(tokens, tokenReserve, address(this).balance);
+    (bool sent,) = msg.sender.call{ value: ethPurchased }("");
+    require(sent, "Failed to send Ether.");
+    require(token.transferFrom(msg.sender, address(this), tokens));
+    return ethPurchased;
+  }
 }
