@@ -1,5 +1,3 @@
-// deploy/00_deploy_balloons_dex.js
-
 const { ethers } = require("hardhat");
 
 module.exports = async ({ getNamedAccounts, deployments }) => {
