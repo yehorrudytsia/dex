@@ -59,4 +59,17 @@ contract DEX {
     require(token.transferFrom(msg.sender, address(this), tokensAmount));
     return liquidityMinted;  
   }
+
+  function withdraw(uint256 liquidityAmount) public returns (uint256, uint256) 
+  {
+    uint256 tokenReserve = token.balanceOf(address(this));
+    uint256 ethAmount = (liquidityAmount * address(this).balance / totalLiquidity);
+    uint256 tokensAmount = (liquidityAmount * tokenReserve) / totalLiquidity;
+    liquidity[msg.sender] -= liquidityAmount;
+    totalLiquidity -= liquidityAmount;
+    (bool sent,) = msg.sender.call{ value: ethAmount }("");
+    require(sent, "Failed to send Ether");
+    require(token.transfer(msg.sender, tokensAmount));
+    return (ethAmount, tokensAmount);
+  } 
 }
